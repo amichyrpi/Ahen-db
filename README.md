@@ -22,6 +22,8 @@
 
 ```bash
 pip install skypydb # python client
+# or download from the source
+# git clone https://github.com/Ahen-Studio/skypy-db.git
 ```
 
 ## Features
