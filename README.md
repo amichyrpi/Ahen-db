@@ -1,7 +1,6 @@
-<p align="center">
-    ![Skypy](./docs/logo/light.svg#gh-light-mode-only)
-    ![Skypy](./docs/logo/dark.svg#gh-dark-mode-only)
-</p>
+<h1><div align="center">
+ <img alt="Skypy" width="auto" height="auto" src="https://github.com/amichyrpi/skypy-db/blob/main/docs/logo/dark.svg">
+</div></h1>
 
 <p align="center">
     <b>Skypy - open-source reactive database</b>. <br />
