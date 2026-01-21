@@ -136,7 +136,7 @@ client.start_dashboard()
 
 ## Dashboard
 
-The dashboard starts automatically when you create a client. To keep it running after your operations:
+Start the dashboard to view your data in real time. It will remain active after your operations:
 
 ```python
 import skypydb
