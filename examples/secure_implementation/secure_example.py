@@ -8,13 +8,18 @@ load_dotenv()
 
 # Load encryption key from environment
 encryption_key = os.getenv("ENCRYPTION_KEY") # create a encryption key and make it available in .env file before using it, don't show this key to anyone
-if not encryption_key:
-    raise RuntimeError("ENCRYPTION_KEY is missing; encryption is disabled.")
+salt_key = os.getenv("SALT_KEY") # create a salt key and make it available in .env file before using it, don't show this salt to anyone
+
+# transform salt key to bytes
+if salt_key is None:
+    raise ValueError("SALT_KEY missing")
+salt_bytes = salt_key.encode("utf-8")
 
 # Create encrypted database
 client = skypydb.Client(
     path="./data/secure.db",
     encryption_key=encryption_key,
+    salt=salt_bytes,
     encrypted_fields=["password", "ssn", "credit_card"]  # Optional: encrypt only sensitive fields
 )
 
@@ -35,5 +40,8 @@ table.add(
 )
 
 # Data is automatically decrypted when retrieved
-users = table.get_all()
-print(users[0]['ssn'])  # "123-45-6789" (decrypted)
+results = table.search(
+    index="alice"# search the corresponding data by their index
+)
+for result in results:
+    print(result)

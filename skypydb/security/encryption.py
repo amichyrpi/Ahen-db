@@ -1,6 +1,6 @@
 """
 Encryption module for securing sensitive data in SkypyDB.
-Uses AES-256-GCM for encryption with PBKDF2 key derivation.
+Uses AES-256-GCM for encryption with PBKDF2HMAC key derivation.
 """
 
 import base64
@@ -20,7 +20,7 @@ class EncryptionManager:
     
     Features:
     - AES-256-GCM encryption (authenticated encryption)
-    - PBKDF2 key derivation from passwords
+    - PBKDF2HMAC key derivation from passwords
     - Secure random nonce generation
     - Base64 encoding for storage compatibility
     """
@@ -36,7 +36,8 @@ class EncryptionManager:
 
         Args:
             encryption_key: Master encryption key/password. If None, encryption is disabled.
-            iterations: Number of PBKDF2 iterations (default: 100000)
+            iterations: Number of PBKDF2HMAC iterations (default: 100000)
+            salt: Required, non-empty salt for PBKDF2HMAC when encryption is enabled
 
         Raises:
             EncryptionError: If cryptography library is not installed
@@ -50,6 +51,8 @@ class EncryptionManager:
         self._key: Optional[bytes] = None
 
         if self.enabled:
+            if encryption_key == "":
+                raise EncryptionError("Encryption key must not be empty.")
             # Derive a 256-bit key from the password
             assert encryption_key is not None  # Type narrowing for type checker
             self._key = self._derive_key(encryption_key, salt=self._salt)
@@ -58,23 +61,21 @@ class EncryptionManager:
     def _derive_key(
         self,
         password: str,
-        salt: Optional[bytes],
+        salt: Optional[bytes] = None,
     ) -> bytes:
         """
-        Derive a 256-bit encryption key from a password using PBKDF2.
+        Derive a 256-bit encryption key from a password using PBKDF2HMAC.
         
         Args:
             password: Master password/key
-            salt: Optional salt (if None, uses a fixed application salt)
+            salt: Required, non-empty salt for PBKDF2HMAC
             
         Returns:
             32-byte encryption key
         """
         
-        # Use a fixed application salt for key derivation
-        # In production, you might want to store this securely or generate per-database
         if not salt:
-            raise EncryptionError("A persistent, deployment-specific salt is required")
+            raise EncryptionError("Encryption salt must be provided and non-empty.")
         
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
@@ -328,18 +329,36 @@ class EncryptionManager:
         
         return secrets.token_hex(32)  # 32 bytes = 256 bits
 
+    @staticmethod
+    def generate_salt(length: int = 32) -> bytes:
+        """
+        Generate a secure random salt.
+
+        Args:
+            length: Salt length in bytes (default: 32)
+
+        Returns:
+            Random salt as bytes
+        """
+        
+        if length <= 0:
+            raise EncryptionError("Salt length must be positive.")
+        return secrets.token_bytes(length)
+
 
 def create_encryption_manager(
     encryption_key: Optional[str] = None,
+    salt: Optional[bytes] = None,
 ) -> EncryptionManager:
     """
     Factory function to create an EncryptionManager instance.
     
     Args:
         encryption_key: Master encryption key. If None, encryption is disabled.
+        salt: Required, non-empty salt for PBKDF2HMAC when encryption is enabled.
         
     Returns:
         EncryptionManager instance
     """
     
-    return EncryptionManager(encryption_key=encryption_key)
+    return EncryptionManager(encryption_key=encryption_key, salt=salt)
