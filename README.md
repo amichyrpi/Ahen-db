@@ -44,8 +44,8 @@ pip install skypydb # python client
 
 ## TODO
 
-- [ ] improve cli by adding --help, --version and make it add schema.py in skypydb,skypydb.db in _generated
-- [ ] improve table by adding dedicated methods for adding table with schema (table = client.create_table(from_schema=True)) if it False return an error message "Schema cannot be False"
+- [ ] Improve CLI: add --help/--version and generate schema.py + skypydb.db under _generated
+- [ ] Improve table creation: add create_table(from_schema=True); if False, return "Schema cannot be False"
 - [ ] Create the dashboard using Reflex
 
 ## What's next!
