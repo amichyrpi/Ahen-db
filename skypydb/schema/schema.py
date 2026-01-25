@@ -97,10 +97,12 @@ class TableDefinition:
     # retrieve the SQL column definitions for a table
     def get_sql_columns(self) -> List[str]:
         """
-        Get SQL column definitions for this table.
-
+        Produce SQL column definitions for creating the table.
+        
+        Includes the required "id TEXT PRIMARY KEY" and "created_at TEXT NOT NULL" columns. For each column in the table definition (except "id" and "created_at"), maps the column's validator to an SQL type: `Int64Validator` and `BooleanValidator` -> `INTEGER`, `Float64Validator` -> `REAL`, all others -> `TEXT`. Column names are wrapped in square brackets in the returned definitions.
+        
         Returns:
-            List of SQL column definitions
+            List[str]: SQL column definition strings suitable for a CREATE TABLE statement (e.g. "[name] TEXT", "age INTEGER").
         """
 
         sql_columns = [

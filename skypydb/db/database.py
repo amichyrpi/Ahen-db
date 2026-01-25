@@ -237,18 +237,21 @@ class Database:
         **filters,
     ) -> List[Dict[str, Any]]:
         """
-        Search for data in a table.
-
-        Args:
-            table_name: Name of the table
-            index: Value to search for in any column (searches all columns if column not specified)
-            **filters: Additional filters as keyword arguments (column name = value)
-
+        Search a table for rows matching an optional free-text index value and/or column filters.
+        
+        Searches the table for rows where the optional index value matches any non-standard column (columns other than `id` and `created_at`) using OR across those columns, and applies any additional filters as AND conditions. Filter values that are lists are translated to SQL IN clauses. Returned rows have encrypted fields decrypted.
+        
+        Parameters:
+            table_name (str): Name of the target table.
+            index (Optional[str]): Value to search across all non-standard columns; ignored if None.
+            **filters: Column-value pairs to filter results. If a value is a list, it is used with an IN clause (empty lists are invalid).
+        
         Returns:
-            List of dictionaries containing matching rows
-
+            List[Dict[str, Any]]: Matching rows as dictionaries with sensitive fields decrypted.
+        
         Raises:
-            ValidationError: If input parameters are invalid
+            ValidationError: If table name, index, or filters fail validation, or an empty list is provided for a filter.
+            TableNotFoundError: If the specified table does not exist.
         """
 
         # Validate table name
@@ -491,16 +494,30 @@ class Database:
         config: Dict[str, Any],
     ) -> Dict[str, Any]:
         """
-        Normalize configuration to ensure all types are strings for JSON serialization.
-
-        Args:
-            config: Configuration dictionary with columns and types
-
+        Normalize a table configuration so every column type is represented as a JSON-serializable value.
+        
+        For each entry in `config`:
+        - If the value is a dict, returns a copy with its `"type"` field converted to one of the strings `"str"`, `"int"`, `"float"`, or `"bool"` when the type exactly matches the corresponding Python type; otherwise the type is converted to its string form. Other keys in the dict are preserved.
+        - If the value is a list, it is preserved unchanged.
+        - For any other value, the value is replaced by the normalized type string as described above.
+        
+        Parameters:
+            config (Dict[str, Any]): Mapping of column names to type descriptors (type, dict, or list).
+        
         Returns:
-            Normalized configuration with string types
+            Dict[str, Any]: Normalized configuration with JSON-serializable type representations.
         """
 
         def _normalize_type(t: Any) -> str:
+            """
+            Map a Python type object to a canonical string name used in stored table configurations.
+            
+            Parameters:
+                t (Any): A type object or value; exact matches to the builtin types `str`, `int`, `float`, and `bool` produce their canonical names.
+            
+            Returns:
+                A string: `'str'` if `t` is `str`, `'int'` if `t` is `int`, `'float'` if `t` is `float`, `'bool'` if `t` is `bool`, otherwise `str(t)`.
+            """
             if t is str:
                 return "str"
             if t is int:
