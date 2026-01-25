@@ -74,11 +74,11 @@ class Table:
 
         # Prepare data for each row
         inserted_ids = []
-        for i in range(max_length):
+        for row_index in range(max_length):
             row_data = {}
             for key, value in kwargs.items():
                 if isinstance(value, list):
-                    row_data[key] = value[i] if i < len(value) else value[-1]
+                    row_data[key] = value[row_index] if row_index < len(value) else value[-1]
                 else:
                     row_data[key] = value
 
@@ -126,11 +126,7 @@ class Table:
         """
 
         # Convert list filters if needed
-        processed_filters = {}
-        for key, value in filters.items():
-            processed_filters[key] = value
-
-        return self.db.delete_data(self.table_name, **processed_filters)
+        return self.db.delete_data(self.table_name, **filters)
 
 
     # search a data from the table
@@ -144,27 +140,34 @@ class Table:
 
         Args:
             index: Value to search for in the index column (primary search key)
-            **filters: Additional filters as keyword arguments
+            **filters: Additional filters as keyword arguments (column name = value or list of values)
 
         Returns:
             List of dictionaries containing matching rows
 
         Example:
+            # Search by index and a single filter
             results = table.search(
                 index="user123",
                 title="document"
             )
+
+            # Search with multiple criteria
+            results = table.search(
+                index="user123",
+                status="active",
+                category="news",
+            )
+
+            # Search with list values (e.g. uses IN clause in underlying DB)
+            results = table.search(
+                index="user123",
+                title=["doc1", "doc2"]
+            )
         """
 
-        # Convert list filters to single values (take first element)
-        processed_filters = {}
-        for key, value in filters.items():
-            if isinstance(value, list) and len(value) > 0:
-                processed_filters[key] = value[0]
-            else:
-                processed_filters[key] = value
-
-        return self.db.search(self.table_name, index=index, **processed_filters)
+        # Pass filters directly; list values are handled explicitly by the database layer
+        return self.db.search(self.table_name, index=index, **filters)
 
 
     # get_all the data from the table
