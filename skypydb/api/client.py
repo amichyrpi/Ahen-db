@@ -105,7 +105,7 @@ class Client:
                 schema = getattr(module, "schema", None)
 
         # If not found in cwd, try to load from the installed package location
-        if schema is None or isinstance(schema, ModuleType):
+        if schema is None:
             package_root = os.path.dirname(os.path.dirname(__file__))
             schema_path = os.path.join(package_root, "schema.py")
             if os.path.exists(schema_path):
