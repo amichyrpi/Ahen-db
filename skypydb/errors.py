@@ -42,7 +42,7 @@ class SkypydbError(Exception):
         return f"[{self.code}] {self.__class__.__name__}"
 
 
-# database errors handling
+# table errors handling
 class TableNotFoundError(SkypydbError):
     """
     Raised when a table is not found.
