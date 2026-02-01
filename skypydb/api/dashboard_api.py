@@ -544,6 +544,7 @@ class StatisticsAPI:
         """
 
         try:
+        try:
             vdb = DatabaseConnection.get_vector()
             collections = vdb.list_collections()
 
@@ -552,6 +553,7 @@ class StatisticsAPI:
                 vdb.count(coll['name'])
                 for coll in collections
             )
+            vdb.close()
         except Exception as error:
             stats["collections"]["error"] = str(error)
 
