@@ -9,7 +9,7 @@ class SkypydbError(Exception):
     """
 
     CODE = "SKY001"
-    default_message = "An error occurred."
+    default_message = "An unexpected error occurred in Skypydb."
 
     # initialize the SkypydbError instance for handling and formatting error messages
     def __init__(
@@ -33,7 +33,7 @@ class SkypydbError(Exception):
             default_msg = getattr(
                 self,
                 "default_message",
-                self.__class__.__name__,
+                "An unexpected error occurred.",
             )
             formatted_message = f"[{self.CODE}] {default_msg}"
 
@@ -67,7 +67,10 @@ class DatabaseError(SkypydbError):
     """
 
     CODE = "SKY103"
-    default_message = "Database operation failed."
+    default_message = (
+        "Database operation failed. This may indicate a connectivity issue, "
+        "invalid query, or transaction problem. Check database logs and configuration."
+    )
 
 
 # search errors handling
@@ -77,7 +80,10 @@ class InvalidSearchError(SkypydbError):
     """
 
     CODE = "SKY201"
-    default_message = "Invalid search parameters."
+    default_message = (
+        "One or more search parameters are invalid. "
+        "Check parameter names, types, and value ranges for your search query."
+    )
 
 
 # security errors handling
@@ -87,7 +93,10 @@ class SecurityError(SkypydbError):
     """
 
     CODE = "SKY301"
-    default_message = "Security operation failed."
+    default_message = (
+        "Security operation failed. Possible authentication or authorization issue; "
+        "see logs for details."
+    )
 
 
 # validation errors handling
