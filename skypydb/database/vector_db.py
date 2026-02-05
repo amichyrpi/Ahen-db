@@ -10,8 +10,6 @@ from typing import (
     Callable
 )
 from skypydb.database.mixins.vector import (
-    cosine_similarity,
-    euclidean_distance,
     SysEmbeddings,
     SysAdd,
     SysUpdate,
@@ -26,8 +24,6 @@ from skypydb.database.mixins.vector import (
 )
 
 class VectorDatabase(
-    cosine_similarity,
-    euclidean_distance,
     SysEmbeddings,
     SysAdd,
     SysUpdate,
