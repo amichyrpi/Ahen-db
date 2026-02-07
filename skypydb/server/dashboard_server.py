@@ -155,7 +155,7 @@ class TableAPI:
         db = DatabaseConnection.get_main()
         
         try:
-            table_names = db.get_all_tables()
+            table_names = db.get_all_tables_names()
             return [self._get_info(db, name) for name in table_names]
         finally:
             db.close()
